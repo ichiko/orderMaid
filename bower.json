@@ -1,0 +1,26 @@
+{
+  "name": "orderMaid",
+  "version": "0.0.1",
+  "authors": [
+    "ichiko <ichigo_sky@hotmail.com>"
+  ],
+  "description": "order & server game",
+  "dependencies": {
+    "jquery": "~2.0.3",
+    "backbone": "~1.1.0",
+    "underscore": "~1.5.2",
+    "enchant.js": "wise9/enchant.js#~0.8.0",
+    "bootstrap": "~3.0.0"
+  },
+  "exportsOverride": {
+    "backbone": {
+      "/": "backbone-min.js"
+    },
+    "underscore": {
+      "/": "underscore-min.js"
+    },
+    "enchant.js": {
+      "/": "enchant.min.js"
+    }
+  }
+}

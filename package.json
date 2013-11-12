@@ -1,0 +1,12 @@
+{
+  "name": "para*para",
+  "version": "0.0.0",
+  "description": "enchant.jsでセルアニメーションのチェックをする",
+  "author": "ichiko@git.hub",
+  "devDependencies": {
+    "grunt": "~0.4.1",
+    "grunt-contrib-watch": "~0.5.3",
+    "grunt-contrib-coffee": "~0.7.0",
+    "grunt-bower-task": "~0.3.2"
+  }
+}

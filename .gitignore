@@ -1,0 +1,10 @@
+#.gitignore
+.DS_Store
+.bundle/
+.sass-cache/
+bower_components/
+node_modules/
+public/lib/*
+public/js/*.js
+vendor/
+Gemfile.lock
