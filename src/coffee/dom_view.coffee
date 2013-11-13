@@ -8,7 +8,7 @@ class GameScreenView extends Backbone.View
 	el: '#playView'
 
 	initialize: ->
-		@game = new OrderMaid()
+		@game = new OrderMaid(@model)
 		@game.start()
 
 class StatusView extends Backbone.View

@@ -62,49 +62,64 @@ class OrderMaid extends Game
 
 		@onload = ->
 			console.log "OrderMaid.onload"
-			@startTakeOrder()
+			@loadMainScene()
 
 	loadMainScene: ->
 		main = new FloorScene(@stageInfo)
 		@pushScene main
+		@stageInfo.set('status', StageInfo.STATE_MAIN_READY)
 
 	startTakeOrder: ->
 		# 注文を描画する
+		@stageInfo.set('status', StageInfo.STATE_MAIN_TAKE_ORDER)
 		
 	didTakeOrder: ->
 		# 移動できるようになる
+		@stageInfo.set('status', StageInfo.STATE_MAIN_PRE_ORDER_TO_CHEF)
 
 	orderToChef: ->
 		# シェフに注文を指示する
 		orderPanel = new OrderPanelScene(@stageInfo)
 		@pushScene orderPanel
+		@stageInfo.set('status', StageInfo.STATE_MAIN_ORDER_TO_CHEF)
 
 	didOrderToChef: ->
 		# 注文完了、調理アニメーション
+		@stageInfo.set('status', StageInfo.STATE_MAIN_COOKING)
 
 	didCook: ->
 		# 調理完了、シェフから受け取れるようになる
+
 
 	startFloorServe: ->
 		# 移動できるようになる
 		console.log @stageInfo
 		@popScene()
-		@currentScene.startServe()
+		#@currentScene.startServe()
+		@stageInfo.set('status', StageInfo.STATE_MAIN_DELIVER_DISH)
 
 	startServeDish: ->
 		# 客は選択済み
+		@stageInfo.set('status', StageInfo.STATE_MAIN_SERVE_DISH)
 
 	showChoisePanel: ->
 		# 選択画面を表示する
 		cookingList = @stageInfo.get('cookingList')
 		choisePanel = new ChoisePanelScene(cookingList)
 		@pushScene choisePanel
+		@stageInfo.set('status', StageInfo.STATE_MAIN_SELECT_DISH)
 
-	selectServeDish: (dish) ->
+	didSelectServeDish: (dish) ->
 		# 結果判定して、表示
+		@stageInfo.set('status', StageInfo.STATE_MAIN_CHECK_DISH)
 
 	didServeDish: ->
 		# (結果を確認した後) すべてのオーダーを処理していたら、ゲーム終了
+		customers = @stageInfo.get('customers')
+		if customers.contains( { isDelivered: false} )
+			@stageInfo.set('status', StageInfo.STATE_MAIN_DELIVER_DISH)
+		else
+			@stageInfo.set('status', StageInfo.STATE_MAIN_ALL_DELIVERED)
 
 	startResultScene: ->
 		# 結果画面を表示する
@@ -113,7 +128,7 @@ class FloorScene extends Scene
 	constructor: (stageInfo) ->
 		super
 		@game = OrderMaid.game
-
+		@stageInfo = stageInfo
 
 
 
