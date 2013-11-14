@@ -1,12 +1,13 @@
 {
-  "name": "para*para",
+  "name": "orderMaid",
   "version": "0.0.0",
-  "description": "enchant.jsでセルアニメーションのチェックをする",
+  "description": "ミニゲーム：オーダーメイド",
   "author": "ichiko@git.hub",
   "devDependencies": {
     "grunt": "~0.4.1",
     "grunt-contrib-watch": "~0.5.3",
     "grunt-contrib-coffee": "~0.7.0",
-    "grunt-bower-task": "~0.3.2"
+    "grunt-bower-task": "~0.3.2",
+    "grunt-contrib-jasmine": "~0.5.2"
   }
 }

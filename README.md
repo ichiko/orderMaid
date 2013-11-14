@@ -13,6 +13,7 @@ mini game on browser with coffee-script, enchant.js, backbone.js
 	bundle install --path vendor/bundle
 	npm install
 	bower install
+	brew install phantomjs
 	```
 
 1. Build dependecies
