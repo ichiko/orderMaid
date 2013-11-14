@@ -2,9 +2,12 @@
 .DS_Store
 .bundle/
 .sass-cache/
+.grunt/
 bower_components/
 node_modules/
 public/lib/*
 public/js/*.js
+spec_runner/
 vendor/
 Gemfile.lock
+_SpecRunner.html

@@ -6,9 +6,9 @@ class MenuHelper
 		@dishList = menu
 
 	getDishName: (dish_id) ->
+		name = ''
 		if @dishList?
-			@dishList.each (dish) ->
-				id = dish.get('id')
-				if id == dish_id
-					return dish.get('name')
-		return ''
+			list = @dishList.where({id: dish_id})
+			if list.length > 0
+				name = list[0].get('name')
+		return name
