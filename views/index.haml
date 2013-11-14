@@ -1,6 +1,8 @@
 .panel.panel-default
 	.panel-body#playView
 		%div#enchant-stage
-	.panel-footer#statusbar Score: 0
+	.panel-footer#statusbar
 
+%script{ type: 'text/template', id: 'status_template' }
+	Score: <%= totalScore %> State: <%= status %>
 %script{ src: 'js/main.js' }
