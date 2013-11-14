@@ -69,5 +69,6 @@ module.exports = (grunt) ->
 	grunt.loadNpmTasks 'grunt-contrib-watch'
 	grunt.loadNpmTasks 'grunt-contrib-jasmine'
 	grunt.registerTask 'default', ['watch']
+	grunt.registerTask 'build', ['coffee:app']
 	grunt.registerTask 'spec', ['coffee:spec_src', 'coffee:spec', 'jasmine']
 	return

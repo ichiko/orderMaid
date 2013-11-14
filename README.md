@@ -35,10 +35,18 @@ mini game on browser with coffee-script, enchant.js, backbone.js
 	grunt bower:install
 	```
 
-### Build
+### Test
 
 ```
-grunt coffee:compileJoined
+grunt spec
+```
+
+### Build
+
+this command run build task without testing.
+
+```
+grunt build
 ```
 
 ### Running
