@@ -58,7 +58,6 @@ module.exports = (grunt) ->
 						'public/lib/bootstrap/bootstrap.js'
 						'public/lib/underscore/underscore-min.js'
 						'public/lib/backbone/backbone-min.js'
-						'public/lib/*/*.js'
 					]
 					specs: [
 						'spec_runner/spec/helper_spec.js'
