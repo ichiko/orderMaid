@@ -1,15 +1,5 @@
-# view.coffee
+# dom_view_status.coffee
 # require backbone.js
-# require model.coffee
-# require helper.coffee
-
-class GameScreenView extends Backbone.View
-	# model: StageInfo
-	el: '#playView'
-
-	initialize: ->
-		@game = new OrderMaid(@model)
-		@game.start()
 
 class StatusView extends Backbone.View
 	# model: StageInfo

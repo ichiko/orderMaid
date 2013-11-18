@@ -2,7 +2,6 @@
 # require enchant.js
 # require model.coffee
 
-
 enchant()
 
 # 定数
@@ -50,85 +49,129 @@ GameView.Preload =
 		GameView.settings.Customer.Image02
 		]
 
-class OrderMaid extends Game
+class OrderMaidGameView extends Game
 	constructor: (stageInfo) ->
 		super GameView.settings.ScreenWidth, GameView.settings.ScreenHeight
+
 		@fps = GameView.settings.Fps
 		@preload GameView.Preload.Images
-		OrderMaid.game = @
-		@stageInfo = stageInfo
 
+		GameView.game = @
+		@stageInfo = stageInfo
+		@prevTick = 0
+
+		# キー入力の受付設定(SPACEと、やじるしキーを使う)
 		@keybind(32, "space")
+		@addEventListener("spacebuttondown", @onenterkeySpace)
 
 		@onload = ->
 			console.log "OrderMaid.onload"
-			@loadMainScene()
 
-	loadMainScene: ->
-		main = new FloorScene(@stageInfo)
-		@pushScene main
-		@stageInfo.set('status', StageInfo.STATE_MAIN_READY)
+	onenterkeySpace: ->
+		return if ! @checkInputDelay()
 
-	startTakeOrder: ->
-		# 注文を描画する
-		@stageInfo.set('status', StageInfo.STATE_MAIN_TAKE_ORDER)
-		
-	didTakeOrder: ->
-		# 移動できるようになる
-		@stageInfo.set('status', StageInfo.STATE_MAIN_PRE_ORDER_TO_CHEF)
+	onenterkeyCursor: ->
+		return if ! @checkInputDelay()
 
-	orderToChef: ->
-		# シェフに注文を指示する
-		orderPanel = new OrderPanelScene(@stageInfo)
-		@pushScene orderPanel
-		@stageInfo.set('status', StageInfo.STATE_MAIN_ORDER_TO_CHEF)
+	onenterframe: ->
+		input = @.input
+		if input.left or input.right or input.up or input.down
+			@onenterkeyCursor()
 
-	didOrderToChef: ->
-		# 注文完了、調理アニメーション
-		@stageInfo.set('status', StageInfo.STATE_MAIN_COOKING)
+	# 入力ディレイ
+	checkInputDelay: ->
+		now = @getCurrentMilli()
+		if (now - @prevTick) > OrderMaid.settings.Input.DelayMs
+			@prevTick = now
+			return true
+		return false
 
-	didCook: ->
-		# 調理完了、シェフから受け取れるようになる
+	getCurrentMilli: ->
+		date = new Date()
+		return date.getTime()
+
+	# SPACEキー入力を受付るか
+	enableSpaceKeyInput: ->
+
+	# やじるしキー入力を受付るか
+	enableCursorKeyInput: ->
+
+#	loadStage: ->
+#		main = new FloorScene(@stageInfo)
+#		@pushScene main
+#		@stageInfo.set('status', StageInfo.STATE_MAIN_READY)
+#
+#	startTakeOrder: ->
+#		# 注文を描画する
+#		@stageInfo.set('status', StageInfo.STATE_MAIN_TAKE_ORDER)
+#		
+#	didTakeOrder: ->
+#		# 移動できるようになる
+#		@stageInfo.set('status', StageInfo.STATE_MAIN_PRE_ORDER_TO_CHEF)
+#
+#	orderToChef: ->
+#		# シェフに注文を指示する
+#		orderPanel = new OrderPanelScene(@stageInfo)
+#		@pushScene orderPanel
+#		@stageInfo.set('status', StageInfo.STATE_MAIN_ORDER_TO_CHEF)
+#
+#	didOrderToChef: ->
+#		# 注文完了、調理アニメーション
+#		@stageInfo.set('status', StageInfo.STATE_MAIN_COOKING)
+#
+#	didCook: ->
+#		# 調理完了、シェフから受け取れるようになる
+#
+#
+#	startFloorServe: ->
+#		# 移動できるようになる
+#		console.log @stageInfo
+#		@popScene()
+#		#@currentScene.startServe()
+#		@stageInfo.set('status', StageInfo.STATE_MAIN_DELIVER_DISH)
+#
+#	startServeDish: ->
+#		# 客は選択済み
+#		@stageInfo.set('status', StageInfo.STATE_MAIN_SERVE_DISH)
+#
+#	showChoisePanel: ->
+#		# 選択画面を表示する
+#		cookingList = @stageInfo.get('cookingList')
+#		choisePanel = new ChoisePanelScene(cookingList)
+#		@pushScene choisePanel
+#		@stageInfo.set('status', StageInfo.STATE_MAIN_SELECT_DISH)
+#
+#	didSelectServeDish: (dish) ->
+#		# 結果判定して、表示
+#		@stageInfo.set('status', StageInfo.STATE_MAIN_CHECK_DISH)
+#
+#	didServeDish: ->
+#		# (結果を確認した後) すべてのオーダーを処理していたら、ゲーム終了
+#		customers = @stageInfo.get('customers')
+#		if customers.where( { isDelivered: false} ).length > 0
+#			@stageInfo.set('status', StageInfo.STATE_MAIN_DELIVER_DISH)
+#		else
+#			@stageInfo.set('status', StageInfo.STATE_MAIN_ALL_DELIVERED)
+#
+#	startResultScene: ->
+#		# 結果画面を表示する
+
+	status: ->
+		return @stageInfo.get('status')
+
+#	enableKeyInput: ->
 
 
-	startFloorServe: ->
-		# 移動できるようになる
-		console.log @stageInfo
-		@popScene()
-		#@currentScene.startServe()
-		@stageInfo.set('status', StageInfo.STATE_MAIN_DELIVER_DISH)
+#	enableCursorInput: ->
 
-	startServeDish: ->
-		# 客は選択済み
-		@stageInfo.set('status', StageInfo.STATE_MAIN_SERVE_DISH)
-
-	showChoisePanel: ->
-		# 選択画面を表示する
-		cookingList = @stageInfo.get('cookingList')
-		choisePanel = new ChoisePanelScene(cookingList)
-		@pushScene choisePanel
-		@stageInfo.set('status', StageInfo.STATE_MAIN_SELECT_DISH)
-
-	didSelectServeDish: (dish) ->
-		# 結果判定して、表示
-		@stageInfo.set('status', StageInfo.STATE_MAIN_CHECK_DISH)
-
-	didServeDish: ->
-		# (結果を確認した後) すべてのオーダーを処理していたら、ゲーム終了
-		customers = @stageInfo.get('customers')
-		if customers.contains( { isDelivered: false} )
-			@stageInfo.set('status', StageInfo.STATE_MAIN_DELIVER_DISH)
-		else
-			@stageInfo.set('status', StageInfo.STATE_MAIN_ALL_DELIVERED)
-
-	startResultScene: ->
-		# 結果画面を表示する
 
 class FloorScene extends Scene
 	constructor: (stageInfo) ->
 		super
-		@game = OrderMaid.game
+		@game = GameView.game
 		@stageInfo = stageInfo
+
+	createLayers: ->
 
 
 
@@ -158,7 +201,7 @@ class CharacterLayer extends Group
 class AvatorBase extends Sprite
 	constructor: (width, height, cell_x, cell_y) ->
 		super width, height
-		@game = OrderMaid.game
+		@game = GameView.game
 		@cell_x = cell_x
 		@cell_y = cell_y
 		@offset_x = @offset_y = 0

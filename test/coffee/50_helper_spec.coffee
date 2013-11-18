@@ -1,8 +1,7 @@
 # helper_spec.coffee
 
 describe 'MenuHelper', ->
-	it 'be defined', ->
-		expect(MenuHelper).toBeDefined()
+
 	describe 'without initialize', ->
 		it 'return empty string', ->
 			helper = new MenuHelper()
@@ -22,7 +21,7 @@ describe 'MenuHelper', ->
 			helper = new MenuHelper()
 			helper.init(menu)
 
-		it 'member is not undefined', ->
+		it 'member is defined', ->
 			expect(helper.dishList).toBeDefined()
 
 		it 'member is contains 3 items', ->
