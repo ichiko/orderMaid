@@ -90,85 +90,131 @@ class OrderMaidGameView extends Game
 		date = new Date()
 		return date.getTime()
 
+	# Sceneは処理中か
+	sceneIsReady: ->
+		@currentScene.isReady
+
 	# SPACEキー入力を受付るか
 	enableSpaceKeyInput: ->
+		return false if ! @sceneIsReady()
+		switch @status()
+			when StageInfo.STATE_MAIN_READY, StageInfo.STATE_MAIN_TAKE_ORDER, StageInfo.STATE_MAIN_PRE_ORDER_TO_CHEF, StageInfo.STATE_MAIN_ORDER_TO_CHEF, StageInfo.STATE_MAIN_DISH_READY, StageInfo.STATE_MAIN_TAKE_DISH_FROM_CHEF, StageInfo.STATE_MAIN_DELIVER_DISH, StageInfo.STATE_MAIN_SERVE_DISH, StageInfo.STATE_MAIN_SELECT_DISH, StageInfo.STATE_MAIN_CHECK_DISH, StageInfo.STATE_MAIN_ALL_DELIVERED
+				return true
+		return false
 
 	# やじるしキー入力を受付るか
 	enableCursorKeyInput: ->
+		return false if ! @sceneIsReady()
+		switch @status()
+			when StageInfo.STATE_MAIN_PRE_ORDER_TO_CHEF, StageInfo.STATE_MAIN_ORDER_TO_CHEF, StageInfo.STATE_MAIN_DISH_READY, StageInfo.STATE_MAIN_DELIVER_DISH, StageInfo.STATE_MAIN_SELECT_DISH
+				return true
+		return false
 
-#	loadStage: ->
-#		main = new FloorScene(@stageInfo)
-#		@pushScene main
-#		@stageInfo.set('status', StageInfo.STATE_MAIN_READY)
-#
-#	startTakeOrder: ->
-#		# 注文を描画する
-#		@stageInfo.set('status', StageInfo.STATE_MAIN_TAKE_ORDER)
-#		
-#	didTakeOrder: ->
-#		# 移動できるようになる
-#		@stageInfo.set('status', StageInfo.STATE_MAIN_PRE_ORDER_TO_CHEF)
-#
-#	orderToChef: ->
-#		# シェフに注文を指示する
-#		orderPanel = new OrderPanelScene(@stageInfo)
-#		@pushScene orderPanel
-#		@stageInfo.set('status', StageInfo.STATE_MAIN_ORDER_TO_CHEF)
-#
-#	didOrderToChef: ->
-#		# 注文完了、調理アニメーション
-#		@stageInfo.set('status', StageInfo.STATE_MAIN_COOKING)
-#
-#	didCook: ->
-#		# 調理完了、シェフから受け取れるようになる
-#
-#
-#	startFloorServe: ->
-#		# 移動できるようになる
-#		console.log @stageInfo
-#		@popScene()
-#		#@currentScene.startServe()
-#		@stageInfo.set('status', StageInfo.STATE_MAIN_DELIVER_DISH)
-#
-#	startServeDish: ->
-#		# 客は選択済み
-#		@stageInfo.set('status', StageInfo.STATE_MAIN_SERVE_DISH)
-#
-#	showChoisePanel: ->
-#		# 選択画面を表示する
-#		cookingList = @stageInfo.get('cookingList')
-#		choisePanel = new ChoisePanelScene(cookingList)
-#		@pushScene choisePanel
-#		@stageInfo.set('status', StageInfo.STATE_MAIN_SELECT_DISH)
-#
-#	didSelectServeDish: (dish) ->
-#		# 結果判定して、表示
-#		@stageInfo.set('status', StageInfo.STATE_MAIN_CHECK_DISH)
-#
-#	didServeDish: ->
-#		# (結果を確認した後) すべてのオーダーを処理していたら、ゲーム終了
-#		customers = @stageInfo.get('customers')
-#		if customers.where( { isDelivered: false} ).length > 0
-#			@stageInfo.set('status', StageInfo.STATE_MAIN_DELIVER_DISH)
-#		else
-#			@stageInfo.set('status', StageInfo.STATE_MAIN_ALL_DELIVERED)
-#
-#	startResultScene: ->
-#		# 結果画面を表示する
+	# ---- 状態管理系 ----
+
+	loadStage: ->
+		@pushFloorScene()
+		@stageInfo.set('status', StageInfo.STATE_MAIN_READY)
+
+	startTakeOrder: ->
+		# 注文を描画する
+		@stageInfo.set('status', StageInfo.STATE_MAIN_TAKE_ORDER)
+
+	didTakeOrder: ->
+		# 移動できるようになる
+		@stageInfo.set('status', StageInfo.STATE_MAIN_PRE_ORDER_TO_CHEF)
+
+	orderToChef: ->
+		# シェフに注文を指示する
+		@pushOrderScene()
+		@stageInfo.set('status', StageInfo.STATE_MAIN_ORDER_TO_CHEF)
+
+	didOrderToChef: ->
+		# 注文完了、調理アニメーション
+		@popScene()
+		# @currentScene.startCooking()
+		@stageInfo.set('status', StageInfo.STATE_MAIN_COOKING)
+
+	didCook: ->
+		# 調理完了、シェフから受け取れるようになる
+		@stageInfo.set('status', StageInfo.STATE_MAIN_DISH_READY)
+
+	takeFromChef: ->
+		# シェフから調理品を受け取る
+		@stageInfo.set('status', StageInfo.STATE_MAIN_TAKE_DISH_FROM_CHEF)
+
+	startFloorServe: ->
+		# 移動できるようになる
+		console.log @stageInfo
+		#@currentScene.startServe()
+		@stageInfo.set('status', StageInfo.STATE_MAIN_DELIVER_DISH)
+
+	startServeDish: ->
+		# 客は選択済み
+		@stageInfo.set('status', StageInfo.STATE_MAIN_SERVE_DISH)
+
+	showChoisePanel: ->
+		@pushChoiseScene()
+		@stageInfo.set('status', StageInfo.STATE_MAIN_SELECT_DISH)
+
+	didSelectServeDish: (dish) ->
+		# 結果判定して、表示
+		@popScene()
+		@stageInfo.set('status', StageInfo.STATE_MAIN_CHECK_DISH)
+
+	didServeDish: ->
+		# (結果を確認した後) すべてのオーダーを処理していたら、ゲーム終了
+		customers = @stageInfo.get('customers')
+		if customers.where( { isDelivered: false} ).length > 0
+			@stageInfo.set('status', StageInfo.STATE_MAIN_DELIVER_DISH)
+		else
+			@startResultScene()
+
+	startResultScene: ->
+		# 結果画面を表示する
+		@pushResultScene()
+		@stageInfo.set('status', StageInfo.STATE_MAIN_ALL_DELIVERED)
+
+
+	# ---- getter ----
 
 	status: ->
 		return @stageInfo.get('status')
 
-#	enableKeyInput: ->
+	# ---- scene control ----
 
+	pushFloorScene: ->
+		main = new FloorScene(@stageInfo)
+		@pushScene main
 
-#	enableCursorInput: ->
+	pushOrderScene: ->
+		orderPanel = new OrderPanelScene(@stageInfo)
+		@pushScene orderPanel
 
+	pushChoiseScene: ->
+		# 選択画面を表示する
+		cookingList = @stageInfo.get('cookingList')
+		choisePanel = new ChoisePanelScene(cookingList)
+		@pushScene choisePanel
 
-class FloorScene extends Scene
-	constructor: (stageInfo) ->
+	pushResultScene: ->
+
+class BaseScene extends Scene
+	constructor: ->
 		super
 		@game = GameView.game
+		@isReady = false
+
+	batchStart: ->
+		@isReady = false
+
+	batchEnd: ->
+		@isReady = true
+
+
+class FloorScene extends BaseScene
+	constructor: (stageInfo) ->
+		super
 		@stageInfo = stageInfo
 
 	createLayers: ->

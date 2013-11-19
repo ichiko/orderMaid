@@ -40,7 +40,7 @@ class StageInfo extends Backbone.Model
 	defaults: {
 		level: 0
 		title: ''
-		status: 0
+		status: 'STATE_LOADING'
 		totalScore: 0
 		menu: new DishList()
 		customers: new CustomerList()
@@ -53,6 +53,7 @@ StageInfo.STATE_MAIN_PRE_ORDER_TO_CHEF = 'STATE_MAIN_PRE_ORDER_TO_CHEF'
 StageInfo.STATE_MAIN_ORDER_TO_CHEF = 'STATE_MAIN_ORDER_TO_CHEF'		# sub scene
 StageInfo.STATE_MAIN_COOKING = 'STATE_MAIN_COOKING'
 StageInfo.STATE_MAIN_DISH_READY = 'STATE_MAIN_DISH_READY'
+StageInfo.STATE_MAIN_TAKE_DISH_FROM_CHEF = 'STATE_MAIN_TAKE_DISH_FROM_CHEF'
 StageInfo.STATE_MAIN_DELIVER_DISH = 'STATE_MAIN_DELIVER_DISH'
 StageInfo.STATE_MAIN_SERVE_DISH = 'STATE_MAIN_SERVE_DISH'
 StageInfo.STATE_MAIN_SELECT_DISH = 'STATE_MAIN_SELECT_DISH'		# sub scene
