@@ -85,7 +85,7 @@ module.exports = (grunt) ->
 					'spec_runner/src/00*.js'
 					'spec_runner/src/10*.js'
 					'spec_runner/src/20_dom_view_screen.js'
-					'spec_runner/src/21_gameview_main.js'
+					'spec_runner/src/21_gameview.js'
 				]
 				options:
 					vendor: [
