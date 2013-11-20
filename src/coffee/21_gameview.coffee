@@ -66,6 +66,7 @@ class OrderMaidGameView extends Game
 
 		@onload = ->
 			console.log "OrderMaid.onload"
+			@loadStage()
 
 	onenterkeySpace: ->
 		return if ! @checkInputDelay()

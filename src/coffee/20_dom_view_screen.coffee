@@ -12,7 +12,7 @@ class GameScreenView extends Backbone.View
 
 	initialize: ->
 		@prevTick = 0
-		@game = new OrderMaidGameView(@, @model)
+		@game = new OrderMaidGameView(@model)
 		@game.start()
 
 	# 厳密にコントローラたろうとすると、キー入力制御もこっち。
