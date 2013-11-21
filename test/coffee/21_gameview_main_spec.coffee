@@ -2,7 +2,7 @@
 # target dom_view_screen.coffee
 
 describe 'OrderMaidGameView', ->
-	
+
 	describe 'checkInputDelay', ->
 		game = null
 		beforeEach ->
@@ -41,6 +41,10 @@ describe 'OrderMaidGameView', ->
 			spyOn(game, 'pushResultScene').andCallFake ->
 				return 4
 			spyOn(game, 'sceneIsReady').andCallFake ->
+				return true
+			spyOn(game, 'floorShowOrders').andCallFake ->
+				return true
+			spyOn(game, 'floorCloseOrders').andCallFake ->
 				return true
 
 		describe '初期化直後', ->

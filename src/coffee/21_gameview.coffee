@@ -57,8 +57,10 @@ class OrderMaidGameView extends Game
 		@preload GameView.Preload.Images
 
 		GameView.game = @
+		GameView.helper = new MenuHelper()
 		@stageInfo = stageInfo
 		@prevTick = 0
+		@replaceScene(new BaseScene())
 
 		# キー入力の受付設定(SPACEと、やじるしキーを使う)
 		@keybind(32, "space")
@@ -66,20 +68,40 @@ class OrderMaidGameView extends Game
 
 		@onload = ->
 			console.log "OrderMaid.onload"
+			@init()
 			@loadStage()
 
+	init: ->
+		GameView.helper.init(@stageInfo.get('menu'))
+
 	onenterkeySpace: ->
+		console.log "OrderMaidGameView.onenterkeySpace"
 		return if ! @checkInputDelay()
 		return if ! @enableSpaceKeyInput()
 
-	onenterkeyCursor: ->
+		status = @status()
+		switch status
+			when StageInfo.STATE_MAIN_READY
+				@startTakeOrder()
+			when StageInfo.STATE_MAIN_TAKE_ORDER
+				@didTakeOrder()
+		@currentScene.onenterkeySpace()
+
+	onenterkeyCursor: (dict) ->
 		return if ! @checkInputDelay()
 		return if ! @enableCursorKeyInput()
+		@currentScene.onenterkeyCursor(dict)
 
 	onenterframe: ->
 		input = @.input
-		if input.left or input.right or input.up or input.down
-			@onenterkeyCursor()
+		if input.left
+			@onenterkeyCursor(GameView.Direction.Left)
+		else if input.right
+			@onenterkeyCursor(GameView.Direction.Right)
+		else if input.up
+			@onenterkeyCursor(GameView.Direction.Up)
+		else if input.down
+			@onenterkeyCursor(GameView.Direction.Down)
 
 	# 入力ディレイ
 	checkInputDelay: ->
@@ -121,10 +143,12 @@ class OrderMaidGameView extends Game
 
 	startTakeOrder: ->
 		# 注文を描画する
+		@floorShowOrders()
 		@stageInfo.set('status', StageInfo.STATE_MAIN_TAKE_ORDER)
 
 	didTakeOrder: ->
 		# 移動できるようになる
+		@floorCloseOrders()
 		@stageInfo.set('status', StageInfo.STATE_MAIN_PRE_ORDER_TO_CHEF)
 
 	orderToChef: ->
@@ -202,6 +226,19 @@ class OrderMaidGameView extends Game
 
 	pushResultScene: ->
 
+	# ---- scene command ----
+
+	floorShowOrders: ->
+		@currentScene.batchStart()
+		@currentScene.showOrdersAndChef()
+		@currentScene.noticeHowtoStartServe()
+		@currentScene.batchEnd()
+
+	floorCloseOrders: ->
+		@currentScene.batchStart()
+		@currentScene.closeOrderTweet()
+		@currentScene.batchEnd()
+
 # ---- 共通処理クラス ----
 
 class BaseScene extends Scene
@@ -215,6 +252,11 @@ class BaseScene extends Scene
 
 	batchEnd: ->
 		@isReady = true
+
+	onenterkeySpace: ->
+
+	onenterkeyCursor: (dict) ->
+
 
 class BasePanelScene extends BaseScene
 	

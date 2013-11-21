@@ -84,6 +84,7 @@ module.exports = (grunt) ->
 				src: [
 					'spec_runner/src/00*.js'
 					'spec_runner/src/10*.js'
+					'spec_runner/src/50_helper.js'
 					'spec_runner/src/20_dom_view_screen.js'
 					'spec_runner/src/21_gameview.js'
 				]
@@ -99,6 +100,27 @@ module.exports = (grunt) ->
 						'spec_runner/spec/21_gameview_main_spec.js'
 					]
 					outfile: 'spec_runner/gameviewSpecRunner.html'
+					keepRunner: true
+			gameview_floor:
+				src: [
+					'spec_runner/src/00*.js'
+					'spec_runner/src/10*.js'
+					'spec_runner/src/50_helper.js'
+					'spec_runner/src/21_gameview.js'
+					'spec_runner/src/21_gameview_floor.js'
+				]
+				options:
+					vendor: [
+						'public/lib/jquery/jquery.js'
+						'public/lib/bootstrap/bootstrap.js'
+						'public/lib/underscore/underscore-min.js'
+						'public/lib/backbone/backbone-min.js'
+						'public/lib/enchant.js/enchant.min.js'
+					]
+					specs: [
+						'spec_runner/spec/21_gameview_floor_spec.js'
+					]
+					outfile: 'spec_runner/gameviewFloorSpecRunner.html'
 					keepRunner: true
 
 	grunt.loadNpmTasks 'grunt-bower-task'

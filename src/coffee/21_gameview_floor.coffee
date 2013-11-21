@@ -9,6 +9,7 @@ class FloorScene extends BaseScene
 		@stageInfo = stageInfo
 
 		@createLayers()
+		@batchEnd()
 
 	createLayers: ->
 		tileWidth = GameView.settings.Map.TileSize
@@ -30,7 +31,7 @@ class FloorScene extends BaseScene
 		@maid = new Maid(9, 13)
 
 		@characterLayer = new CharacterLayer
-		@noticeLayer = new Group
+		@noticeLayer = new CustomLayer()
 
 		label = new Label()
 		label.text = 'press SPACE to START'
@@ -49,7 +50,73 @@ class FloorScene extends BaseScene
 
 		@currentMap = groundMap
 
-class CharacterLayer extends Group
+	# ---- 入力 ----
+
+	onenterkeySpace: ->
+		status = @game.status()
+
+	onenterkeyCursor: (dict) ->
+		switch dict
+			when GameView.Direction.Left
+				@maid.left(@currentMap)
+			when GameView.Direction.Right
+				@maid.right(@currentMap)
+			when GameView.Direction.Up
+				@maid.up(@currentMap)
+			when GameView.Direction.Down
+				@maid.down(@currentMap)
+
+	# ---- 描画処理 ----
+
+	clearNotice: ->
+		@noticeLayer.clear()
+
+	showOrdersAndChef: ->
+		# clear
+		@clearNotice()
+		@characterLayer.clearCustomer()
+		# set Chef
+		@chef = new Chef(7, 0)
+		@characterLayer.addChild @chef
+		# set customers
+		orderList = @stageInfo.get('customers')
+		orderList.each (order) =>
+			customer = new Customer(order.get('cell_x'), order.get('cell_y'))
+			customer.setImage(order.get('charIconNo'))
+			customer.model = order
+			@characterLayer.addChild customer
+			@noticeLayer.addChild customer.sayOrder()
+
+	noticeHowtoStartServe: ->
+		label = new Label()
+		label.text = "press Space to Start Service"
+		label.x = 220
+		label.y = GameView.settings.ScreenHeight - 32
+		@noticeLayer.addChild label
+
+	closeOrderTweet: ->
+		@clearNotice()
+
+class CustomLayer extends Group
+	constructor: ->
+		super
+
+	clear: (func) ->
+		i = 0
+		len = @childNodes.length
+		target = []
+		while i < len
+			elm = @childNodes[i]
+			if (! (func?)) or func(elm)
+				target.push elm
+			i++
+		i = 0
+		len = target.length
+		while i < len
+			@removeChild target[i]
+			i++
+
+class CharacterLayer extends CustomLayer
 	constructor: ->
 		super
 
@@ -64,13 +131,8 @@ class CharacterLayer extends Group
 		return null
 
 	clearCustomer: ->
-		i = 0
-		len = @childNodes.length
-		while i < len
-			elm = @childNodes[i]
-			if elm instanceof Customer
-				@removeChild elm
-			i++
+		@clear (elm)->
+			elm instanceof Customer
 
 class AvatorBase extends Sprite
 	constructor: (width, height, cell_x, cell_y) ->
@@ -246,10 +308,10 @@ class Customer extends AvatorBase
 			@image = @game.assets[GameView.settings.Customer.Image02]
 
 	sayOrder: ->
-		@tweet(@model.get('dishName'))
+		@tweet(GameView.helper.getDishName(@model.get('dishId')))
 
 	sayWant: ->
-		@tweet(@model.get('waitMsg'))
+		@tweet(@model.get('waitingMsg'))
 
 	sayNoDishDelivered: ->
 		@tweet(@model.get('hasNoDishMsg'))
