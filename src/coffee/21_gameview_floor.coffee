@@ -8,6 +8,8 @@ class FloorScene extends BaseScene
 		super
 		@stageInfo = stageInfo
 
+		@talking = false
+
 		@createLayers()
 		@batchEnd()
 
@@ -52,8 +54,28 @@ class FloorScene extends BaseScene
 
 	# ---- 入力 ----
 
+	# シーンで処理が完結するときtrueを返す
 	onenterkeySpace: ->
+		if @talking
+			who = @getFrontPerson()
+			if who?
+				who.said()
+				@talking = false
+				return true
+
 		status = @game.status()
+		switch status
+			when StageInfo.STATE_MAIN_PRE_ORDER_TO_CHEF
+				who = @getFrontPerson()
+				if who?
+					if who instanceof Customer
+						@noticeLayer.addChild who.sayNoDishDelivered()
+						@talking = true
+						return true
+					else if who instanceof Chef
+						@noticeLayer.addChild who.sayWhatCook()
+						@talking = true
+		return false
 
 	onenterkeyCursor: (dict) ->
 		switch dict
@@ -65,6 +87,10 @@ class FloorScene extends BaseScene
 				@maid.up(@currentMap)
 			when GameView.Direction.Down
 				@maid.down(@currentMap)
+
+	getFrontPerson: ->
+		targetPos = @maid.getCollisionPoint()
+		who = @characterLayer.who(targetPos[0], targetPos[1])
 
 	# ---- 描画処理 ----
 
@@ -96,6 +122,35 @@ class FloorScene extends BaseScene
 
 	closeOrderTweet: ->
 		@clearNotice()
+
+	startCookingAnimation: ->
+		@chef.said()
+		@talking = false
+
+		@chef.animationTL = true
+		@chef.setDirection(GameView.Direction.Up)
+		@chef.tl.delay(@game.fps * 1).then =>
+			@chef.tl.moveTo(32 * 7, 32 * -1, @game.fps).then =>
+				@chef.setDirection(GameView.Direction.Right)
+				@chef.tl.delay(@game.fps * 1).then =>
+					@chef.tl.moveTo(32 * 10, 32 * -1, @game.fps).then =>
+						@chef.setDirection(GameView.Direction.Up)
+						@chef.tl.delay(@game.fps).then =>
+							@chef.setDirection(GameView.Direction.Right)
+							@chef.tl.delay(@game.fps / 2).then =>
+								@chef.setDirection(GameView.Direction.Left)
+								@chef.tl.delay(@game.fps / 2).then =>
+									@chef.setDirection(GameView.Direction.Right)
+									@chef.tl.delay(@game.fps / 2).then =>
+										@chef.setDirection(GameView.Direction.Left)
+										@chef.tl.moveTo(32 * 7, 0, @game.fps).then =>
+											@chef.setDirection(GameView.Direction.Down)
+											@batchEnd()
+											@game.didCook()
+
+	noticeCookDone: ->
+		@noticeLayer.addChild @chef.sayDone()
+		@talking = true
 
 class CustomLayer extends Group
 	constructor: ->
@@ -147,12 +202,13 @@ class AvatorBase extends Sprite
 		@walkDelay = 9
 		@tickMove = @tickWalk = 0
 		@direction = GameView.Direction.Down
+		@animationTL = false
 		@n = 0
 
 		@update()
 
 	onenterframe: ->
-		if @moveAnimationTimeout()
+		if ! @animationTL and @moveAnimationTimeout()
 			@updatePosition()
 		if @walkAnimationTimeout()
 			@updateWalkAnimation()

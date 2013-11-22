@@ -79,13 +79,17 @@ class OrderMaidGameView extends Game
 		return if ! @checkInputDelay()
 		return if ! @enableSpaceKeyInput()
 
+		return if @currentScene.onenterkeySpace()
 		status = @status()
 		switch status
 			when StageInfo.STATE_MAIN_READY
 				@startTakeOrder()
 			when StageInfo.STATE_MAIN_TAKE_ORDER
 				@didTakeOrder()
-		@currentScene.onenterkeySpace()
+			when StageInfo.STATE_MAIN_PRE_ORDER_TO_CHEF
+				@orderToChef()
+			when StageInfo.STATE_MAIN_ORDER_TO_CHEF
+				@didOrderToChef()
 
 	onenterkeyCursor: (dict) ->
 		return if ! @checkInputDelay()
@@ -119,8 +123,12 @@ class OrderMaidGameView extends Game
 	sceneIsReady: ->
 		@currentScene.isReady
 
+	sceneIsWait: ->
+		@currentScene.talking
+
 	# SPACEキー入力を受付るか
 	enableSpaceKeyInput: ->
+		return true if @sceneIsWait()
 		return false if ! @sceneIsReady()
 		switch @status()
 			when StageInfo.STATE_MAIN_READY, StageInfo.STATE_MAIN_TAKE_ORDER, StageInfo.STATE_MAIN_PRE_ORDER_TO_CHEF, StageInfo.STATE_MAIN_ORDER_TO_CHEF, StageInfo.STATE_MAIN_DISH_READY, StageInfo.STATE_MAIN_TAKE_DISH_FROM_CHEF, StageInfo.STATE_MAIN_DELIVER_DISH, StageInfo.STATE_MAIN_SERVE_DISH, StageInfo.STATE_MAIN_SELECT_DISH, StageInfo.STATE_MAIN_CHECK_DISH, StageInfo.STATE_MAIN_ALL_DELIVERED
@@ -129,7 +137,7 @@ class OrderMaidGameView extends Game
 
 	# やじるしキー入力を受付るか
 	enableCursorKeyInput: ->
-		return false if ! @sceneIsReady()
+		return false if ! @sceneIsReady() or @sceneIsWait()
 		switch @status()
 			when StageInfo.STATE_MAIN_PRE_ORDER_TO_CHEF, StageInfo.STATE_MAIN_ORDER_TO_CHEF, StageInfo.STATE_MAIN_DISH_READY, StageInfo.STATE_MAIN_DELIVER_DISH, StageInfo.STATE_MAIN_SELECT_DISH
 				return true
@@ -159,11 +167,13 @@ class OrderMaidGameView extends Game
 	didOrderToChef: ->
 		# 注文完了、調理アニメーション
 		@popScene()
-		# @currentScene.startCooking()
+		@floorStartCooking()
 		@stageInfo.set('status', StageInfo.STATE_MAIN_COOKING)
 
 	didCook: ->
+		console.log "didCook"
 		# 調理完了、シェフから受け取れるようになる
+		@floorNoticeCookDone()
 		@stageInfo.set('status', StageInfo.STATE_MAIN_DISH_READY)
 
 	takeFromChef: ->
@@ -237,6 +247,15 @@ class OrderMaidGameView extends Game
 	floorCloseOrders: ->
 		@currentScene.batchStart()
 		@currentScene.closeOrderTweet()
+		@currentScene.batchEnd()
+
+	floorStartCooking: ->
+		@currentScene.batchStart()
+		@currentScene.startCookingAnimation()
+
+	floorNoticeCookDone: ->
+		@currentScene.batchStart()
+		@currentScene.noticeCookDone()
 		@currentScene.batchEnd()
 
 # ---- 共通処理クラス ----

@@ -46,6 +46,10 @@ describe 'OrderMaidGameView', ->
 				return true
 			spyOn(game, 'floorCloseOrders').andCallFake ->
 				return true
+			spyOn(game, 'floorStartCooking').andCallFake ->
+				return true
+			spyOn(game, 'floorNoticeCookDone').andCallFake ->
+				return true
 
 		describe '初期化直後', ->
 			it 'status is loading', ->
