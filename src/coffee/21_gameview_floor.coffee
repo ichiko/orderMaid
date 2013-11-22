@@ -144,7 +144,7 @@ class AvatorBase extends Sprite
 		@vx = @vy = 0
 		@speed = 4
 		@moveDelay = 1 #Math.floor(@game.fps / 10)
-		@walkDelay = 10
+		@walkDelay = 9
 		@tickMove = @tickWalk = 0
 		@direction = GameView.Direction.Down
 		@n = 0
@@ -182,8 +182,6 @@ class AvatorBase extends Sprite
 	updatePosition: ->
 		x = @getPixelX()
 		y = @getPixelY()
-		if ! @isWalking()
-			@frame = @direction * 4
 		if @vx != 0
 			x += @vx
 			@vx -= (@vx / Math.abs(@vx)) * @speed
@@ -196,6 +194,10 @@ class AvatorBase extends Sprite
 		if @vx != 0 || @vy != 0
 			@frame = @direction * 4 + (@n % 4)
 			@n++
+
+	setDirection: (dict) ->
+		@direction = dict
+		@frame = @direction * 4
 
 	isWalking: ->
 		@vx != 0 or @vy != 0
@@ -213,7 +215,7 @@ class AvatorBase extends Sprite
 		if @isWalking()
 			return
 		if @direction != GameView.Direction.Up
-			@direction = GameView.Direction.Up
+			@setDirection GameView.Direction.Up
 			return
 		if ! map.hitTest(@cell_x * map.tileWidth, (@cell_y - 1) * map.tileHeight) and @enableMoveToUp()
 			@cell_y--
@@ -222,7 +224,7 @@ class AvatorBase extends Sprite
 		if @isWalking()
 			return
 		if @direction != GameView.Direction.Right
-			@direction = GameView.Direction.Right
+			@setDirection GameView.Direction.Right
 			return
 		if ! map.hitTest((@cell_x + 1) * map.tileWidth, @cell_y * map.tileHeight) and @enableMoveToRight()
 			@cell_x++
@@ -231,7 +233,7 @@ class AvatorBase extends Sprite
 		if @isWalking()
 			return
 		if @direction != GameView.Direction.Down
-			@direction = GameView.Direction.Down
+			@setDirection GameView.Direction.Down
 			return
 		if ! map.hitTest(@cell_x * map.tileWidth, (@cell_y + 1) * map.tileHeight) and @enableMoveToDown()
 			@cell_y++
@@ -240,7 +242,7 @@ class AvatorBase extends Sprite
 		if @isWalking()
 			return
 		if @direction != GameView.Direction.Left
-			@direction = GameView.Direction.Left
+			@setDirection GameView.Direction.Left
 			return
 		if ! map.hitTest((@cell_x - 1) * map.tileWidth, @cell_y * map.tileHeight) and @enableMoveToLeft()
 			@cell_x--
